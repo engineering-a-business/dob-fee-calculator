@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOB Filing Fee Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f7;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: #1a1a2e;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Municipality tabs */
+    .tabs {
+      display: flex;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      background: #fff;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      color: #555;
+      transition: background 0.15s, color 0.15s;
+      border: none;
+      background: none;
+    }
+
+    .tab.active {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    /* Form elements */
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.35rem;
+      color: #333;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.95rem;
+      border: 1px solid #d0d5dd;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="number"]:focus {
+      border-color: #1a1a2e;
+    }
+
+    /* Toggle group */
+    .toggle-group {
+      display: flex;
+      border: 1px solid #d0d5dd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .toggle-group button {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: #fff;
+      color: #555;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .toggle-group button.active {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    /* Checkbox rows */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+    }
+
+    .check-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #1a1a2e;
+    }
+
+    .check-row label {
+      margin: 0;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .sub-field {
+      margin-top: 0.75rem;
+      margin-left: 1.6rem;
+    }
+
+    /* Results */
+    .results {
+      display: none;
+    }
+
+    .results.visible {
+      display: block;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.45rem 0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .result-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .result-label { color: #444; }
+    .result-value { font-variant-numeric: tabular-nums; color: #1a1a2e; }
+
+    .result-note {
+      font-size: 0.75rem;
+      color: #888;
+      margin-left: 0.5rem;
+    }
+
+    .result-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.85rem 0 0;
+      margin-top: 0.5rem;
+      border-top: 2px solid #1a1a2e;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .result-total .result-value { font-size: 1.15rem; }
+
+    /* Calculate button */
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn:hover { background: #2e2e50; }
+
+    .hidden { display: none; }
+
+    footer {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>DOB Filing Fee Calculator</h1>
+  <p class="subtitle">Estimated filing fees for permit applications</p>
+
+  <!-- Municipality selector -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchMuni('nyc')">NYC DOB</button>
+    <button class="tab" onclick="switchMuni('wp')">White Plains</button>
+  </div>
+
+  <!-- ===================== NYC DOB ===================== -->
+  <div id="panel-nyc">
+
+    <div class="card">
+      <div class="card-title">Project</div>
+
+      <div class="field">
+        <label for="nyc-cost">Project Cost ($)</label>
+        <input type="number" id="nyc-cost" placeholder="e.g. 100000" min="0" />
+      </div>
+
+      <div class="field">
+        <label>Building Height</label>
+        <div class="toggle-group">
+          <button id="btn-under7" class="active" onclick="setStories('under')">Under 7 Stories</button>
+          <button id="btn-over7" onclick="setStories('over')">7 Stories or More</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Optional Fees</div>
+
+      <div class="check-row">
+        <input type="checkbox" id="chk-landmark" onchange="toggleLandmark()" />
+        <label for="chk-landmark">Landmark (LPC)</label>
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="chk-ahv" onchange="toggleAHV()" />
+        <label for="chk-ahv">After-Hours Variance (AHV)</label>
+      </div>
+      <div class="sub-field hidden" id="ahv-days-field">
+        <label for="nyc-ahv-days">Days of work</label>
+        <input type="number" id="nyc-ahv-days" placeholder="e.g. 3" min="1" max="99" />
+      </div>
+
+      <div class="check-row" style="margin-top:0.5rem;">
+        <input type="checkbox" id="chk-safety" checked />
+        <label for="chk-safety">Apply 5% safety factor</label>
+      </div>
+    </div>
+
+    <button class="btn" onclick="calcNYC()">Calculate</button>
+
+    <div class="card results" id="nyc-results">
+      <div class="card-title">Estimated Fees</div>
+      <div id="nyc-result-rows"></div>
+    </div>
+
+  </div>
+
+  <!-- ===================== WHITE PLAINS ===================== -->
+  <div id="panel-wp" class="hidden">
+
+    <div class="card">
+      <div class="card-title">Project</div>
+      <div class="field">
+        <label for="wp-cost">Project Cost ($)</label>
+        <input type="number" id="wp-cost" placeholder="e.g. 40000" min="0" />
+      </div>
+    </div>
+
+    <button class="btn" onclick="calcWP()">Calculate</button>
+
+    <div class="card results" id="wp-results">
+      <div class="card-title">Estimated Fee</div>
+      <div id="wp-result-rows"></div>
+    </div>
+
+  </div>
+
+  <footer>Estimates only — verify with the applicable municipality before submission.</footer>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────
+  let storiesUnder7 = true;
+
+  // ── Municipality switch ────────────────────────────────
+  function switchMuni(muni) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('panel-nyc').classList.toggle('hidden', muni !== 'nyc');
+    document.getElementById('panel-wp').classList.toggle('hidden', muni !== 'wp');
+  }
+
+  // ── Stories toggle ─────────────────────────────────────
+  function setStories(val) {
+    storiesUnder7 = (val === 'under');
+    document.getElementById('btn-under7').classList.toggle('active', storiesUnder7);
+    document.getElementById('btn-over7').classList.toggle('active', !storiesUnder7);
+  }
+
+  // ── AHV / Landmark toggles ─────────────────────────────
+  function toggleAHV() {
+    const show = document.getElementById('chk-ahv').checked;
+    document.getElementById('ahv-days-field').classList.toggle('hidden', !show);
+  }
+
+  function toggleLandmark() { /* nothing extra needed */ }
+
+  // ── Formatting ─────────────────────────────────────────
+  function fmt(n) {
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function row(label, value, note) {
+    const noteHtml = note ? `<span class="result-note">(${note})</span>` : '';
+    return `<div class="result-row">
+      <span class="result-label">${label}${noteHtml}</span>
+      <span class="result-value">${fmt(value)}</span>
+    </div>`;
+  }
+
+  function totalRow(value) {
+    return `<div class="result-total">
+      <span>Estimated Total</span>
+      <span class="result-value">${fmt(value)}</span>
+    </div>`;
+  }
+
+  // ── NYC DOB Calculation ────────────────────────────────
+  function calcNYC() {
+    const costRaw = parseFloat(document.getElementById('nyc-cost').value);
+    if (!costRaw || costRaw <= 0) { alert('Enter a project cost.'); return; }
+
+    const isLandmark  = document.getElementById('chk-landmark').checked;
+    const hasAHV      = document.getElementById('chk-ahv').checked;
+    const ahvDays     = hasAHV ? parseInt(document.getElementById('nyc-ahv-days').value) || 0 : 0;
+    const applySafety = document.getElementById('chk-safety').checked;
+
+    // Base filing fee
+    let baseFee;
+    if (costRaw <= 3000) {
+      baseFee = 225;
+    } else if (storiesUnder7) {
+      const tier2 = Math.floor((Math.min(costRaw, 5000) - 3000) / 1000) * 20;
+      const tier3 = costRaw > 5000 ? Math.ceil((costRaw - 5000) / 1000) * 10.30 : 0;
+      baseFee = 225 + tier2 + tier3;
+    } else {
+      // 7+ stories: $10.30/k from $3k onward
+      baseFee = 225 + Math.ceil((costRaw - 3000) / 1000) * 10.30;
+    }
+
+    const recordFee  = 166;
+    const serviceFee = (baseFee + recordFee) * 0.02;
+    let total = baseFee + recordFee + serviceFee;
+
+    // Landmark fee
+    let landmarkFee = 0, landmarkSvc = 0;
+    if (isLandmark) {
+      landmarkFee = costRaw <= 25000
+        ? 95
+        : 95 + Math.ceil((costRaw - 25000) / 1000) * 5;
+      landmarkSvc = landmarkFee * 0.02;
+      total += landmarkFee + landmarkSvc;
+    }
+
+    // AHV fee
+    let ahvApp = 0, ahvDaily = 0;
+    if (hasAHV && ahvDays > 0) {
+      ahvApp   = Math.ceil(ahvDays / 3) * 130;
+      ahvDaily = ahvDays * 240;
+      total   += ahvApp + ahvDaily;
+    }
+
+    // Safety factor
+    let safety = 0;
+    if (applySafety) {
+      safety = total * 0.05;
+      total += safety;
+    }
+
+    // Render
+    let html = '';
+    html += row('Base Filing Fee', baseFee);
+    html += row('Record Management Fee', recordFee, 'flat');
+    html += row('Service Fee', serviceFee, '2%');
+    if (isLandmark) {
+      html += row('LPC Landmark Fee', landmarkFee);
+      html += row('LPC Service Fee', landmarkSvc, '2%');
+    }
+    if (hasAHV && ahvDays > 0) {
+      html += row(`AHV Application Fee`, ahvApp, `${ahvDays} day${ahvDays > 1 ? 's' : ''}`);
+      html += row('AHV Daily Fee', ahvDaily, `${ahvDays} × $240`);
+    }
+    if (applySafety) {
+      html += row('Safety Factor', safety, '5%');
+    }
+    html += totalRow(total);
+
+    document.getElementById('nyc-result-rows').innerHTML = html;
+    document.getElementById('nyc-results').classList.add('visible');
+  }
+
+  // ── White Plains Calculation ───────────────────────────
+  function calcWP() {
+    const costRaw = parseFloat(document.getElementById('wp-cost').value);
+    if (!costRaw || costRaw <= 0) { alert('Enter a project cost.'); return; }
+
+    const rounded = Math.ceil(costRaw / 1000) * 1000;
+    const fee = rounded <= 1000
+      ? 100
+      : 100 + ((rounded - 1000) / 1000) * 16;
+
+    let html = '';
+    html += row('Project Cost (rounded to $1k)', rounded);
+    html += `<div class="result-row">
+      <span class="result-label">Fee Formula</span>
+      <span class="result-value" style="font-size:0.8rem;color:#666;">$100 + $16 per $1k over $1k</span>
+    </div>`;
+    html += totalRow(fee);
+
+    document.getElementById('wp-result-rows').innerHTML = html;
+    document.getElementById('wp-results').classList.add('visible');
+  }
+</script>
+</body>
+</html>
