@@ -33,32 +33,22 @@
       margin-bottom: 1.75rem;
     }
 
-    /* Municipality tabs */
-    .tabs {
-      display: flex;
+    /* Municipality selector */
+    .muni-select {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.95rem;
       border: 1px solid #d0d5dd;
       border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 1.5rem;
       background: #fff;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 0.65rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 500;
-      text-align: center;
+      color: #1a1a2e;
+      margin-bottom: 1.5rem;
+      outline: none;
       cursor: pointer;
-      color: #555;
-      transition: background 0.15s, color 0.15s;
-      border: none;
-      background: none;
     }
 
-    .tab.active {
-      background: #1a1a2e;
-      color: #fff;
+    .muni-select:focus {
+      border-color: #1a1a2e;
     }
 
     /* Card */
@@ -237,10 +227,10 @@
   <p class="subtitle">Estimated filing fees for permit applications</p>
 
   <!-- Municipality selector -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchMuni('nyc')">NYC DOB</button>
-    <button class="tab" onclick="switchMuni('wp')">White Plains</button>
-  </div>
+  <select class="muni-select" onchange="switchMuni(this.value)">
+    <option value="nyc">NYC DOB</option>
+    <option value="wp">White Plains</option>
+  </select>
 
   <!-- ===================== NYC DOB ===================== -->
   <div id="panel-nyc">
@@ -324,8 +314,6 @@
 
   // ── Municipality switch ────────────────────────────────
   function switchMuni(muni) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
     document.getElementById('panel-nyc').classList.toggle('hidden', muni !== 'nyc');
     document.getElementById('panel-wp').classList.toggle('hidden', muni !== 'wp');
   }
