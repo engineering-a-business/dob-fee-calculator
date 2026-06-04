@@ -225,10 +225,15 @@
     .hidden { display: none; }
 
     footer {
-      font-size: 0.75rem;
-      color: #aaa;
+      font-size: 0.8rem;
+      color: #7a4a00;
+      background: #fff6e5;
+      border: 1px solid #f1c77a;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
       text-align: center;
       margin-top: 2rem;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -283,10 +288,11 @@
         <input type="number" id="nyc-ahv-days" placeholder="e.g. 3" min="1" max="99" />
       </div>
 
-      <div class="check-row" style="margin-top:0.5rem;">
-        <input type="checkbox" id="chk-safety" checked />
-        <label for="chk-safety">Apply 5% safety factor</label>
+      <div class="check-row">
+        <input type="checkbox" id="chk-oer" />
+        <label for="chk-oer">OER Filing</label>
       </div>
+
     </div>
 
     <button class="btn" onclick="calcNYC()">Calculate</button>
@@ -375,7 +381,8 @@
     const isLandmark  = document.getElementById('chk-landmark').checked;
     const hasAHV      = document.getElementById('chk-ahv').checked;
     const ahvDays     = hasAHV ? parseInt(document.getElementById('nyc-ahv-days').value) || 0 : 0;
-    const applySafety = document.getElementById('chk-safety').checked;
+    const hasOER      = document.getElementById('chk-oer').checked;
+    const applySafety = true;
 
     // Base filing fee
     let baseFee;
@@ -412,11 +419,18 @@
       total   += ahvApp + ahvDaily;
     }
 
-    // Safety factor
+    // Safety factor (applied before fixed government fees)
     let safety = 0;
     if (applySafety) {
       safety = total * 0.05;
       total += safety;
+    }
+
+    // OER Filing — fixed fee, not subject to safety factor
+    let oerFee = 0;
+    if (hasOER) {
+      oerFee = 485;
+      total += oerFee;
     }
 
     // Render
@@ -432,8 +446,8 @@
       html += row(`AHV Application Fee`, ahvApp, `${ahvDays} day${ahvDays > 1 ? 's' : ''}`);
       html += row('AHV Daily Fee', ahvDaily, `${ahvDays} × $240`);
     }
-    if (applySafety) {
-      html += row('Safety Factor', safety, '5%');
+    if (hasOER) {
+      html += row('OER Filing Fee', oerFee, 'flat');
     }
     html += totalRow(total);
 
